@@ -11,14 +11,22 @@ type TServiceProps = {
     store?: {accessInfo: TMatrixAccessInfo};
 };
 
+type TUser = {
+    displayname: string;
+    sender: string;
+    avatar_url: string;
+};
+
 type TStorage = {
     syncs: any;
+    user: TUser[];
 };
 
 class MatrixService {
     private accessInfo: TMatrixAccessInfo | null = null;
     private storage: TStorage = {
         syncs: [],
+        user: [],
     };
     private syncActive: boolean = false;
 
@@ -30,6 +38,7 @@ class MatrixService {
 
     getAccessInfo = () => this.accessInfo;
     getSyncs = () => this.storage.syncs;
+    getUsers = () => this.storage.user;
 
     login = async (username: string, password: string) => {
         try {
@@ -83,10 +92,35 @@ class MatrixService {
                 if (!found) {
                     this.storage.syncs = [...this.storage.syncs, jsonRes];
                 }
+                // prototype of getting user info
+                if (this.storage.syncs.length > 0) {
+                    this.storage.syncs.forEach((sync: any) => {
+                        Object.keys(sync.rooms.join).forEach((k) => {
+                            sync.rooms.join[k].state.events.forEach(
+                                (evt: any) => {
+                                    if (evt.type === "m.room.member") {
+                                        const found = this.storage.user.find(
+                                            (u) =>
+                                                u.displayname ===
+                                                evt.content.displayName,
+                                        );
+                                        if (!found) {
+                                            this.storage.user = [
+                                                ...this.storage.user,
+                                                {...evt.content},
+                                            ];
+                                        }
+                                    }
+                                },
+                            );
+                        });
+                    });
+                }
                 if (cb) {
                     cb(jsonRes);
                 }
                 this.syncActive = false;
+                console.log(this.storage.user);
 
                 return this.sync({cb});
             }
