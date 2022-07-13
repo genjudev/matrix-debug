@@ -4,6 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+//@ts-ignore
+import olm from "@matrix-org/olm/olm_legacy";
+//@ts-ignore
+global.Olm = olm;
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
