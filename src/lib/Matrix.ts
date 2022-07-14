@@ -138,7 +138,10 @@ export default class Matrix extends DelegatedEventTarget {
                                 if (u.sender === sender) {
                                     presence = content.presence;
                                 }
-                                this.storage.user[index].presence = presence;
+                                this.storage.user[index].presence =
+                                    presence === "online"
+                                        ? presence
+                                        : u.presence || presence;
                             });
                         });
                     });
