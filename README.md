@@ -1,5 +1,7 @@
 # Matrix Debugging Tool
 
+[Live Demo](https://matrix-debug.vercel.app)
+
 [WIP]
 
 -   alot todo
