@@ -13,7 +13,13 @@ type TMatrixAccessInfo = {
 type TServiceProps = {
     store?: {accessInfo: TMatrixAccessInfo};
 };
-
+type TRoom = {
+    name: string;
+    state: any;
+    timeline: any;
+    roomId: string;
+    members: any;
+};
 type TUser = {
     displayname: string;
     sender: string;
@@ -23,6 +29,7 @@ type TUser = {
 type TStorage = {
     syncs: any;
     user: TUser[];
+    rooms: TRoom[];
 };
 
 export default class Matrix extends DelegatedEventTarget {
@@ -30,6 +37,7 @@ export default class Matrix extends DelegatedEventTarget {
     private storage: TStorage = {
         syncs: [],
         user: [],
+        rooms: [],
     };
     private syncActive: boolean = false;
 
@@ -43,6 +51,7 @@ export default class Matrix extends DelegatedEventTarget {
     getAccessInfo = () => this.accessInfo;
     getSyncs = () => this.storage.syncs;
     getUsers = () => this.storage.user;
+    getRooms = () => this.storage.rooms;
 
     login = async (username: string, password: string, baseUrl: string) => {
         try {
@@ -111,6 +120,7 @@ export default class Matrix extends DelegatedEventTarget {
                 if (this.storage.syncs.length > 0) {
                     this.storage.syncs.forEach((sync: any) => {
                         Object.keys(sync.rooms.join).forEach((k) => {
+                            this.storeRoom(k)(sync.rooms.join[k]);
                             sync.rooms.join[k].state.events.forEach(
                                 (evt: any) => {
                                     if (evt.type === "m.room.member") {
@@ -153,6 +163,33 @@ export default class Matrix extends DelegatedEventTarget {
             return await res.json();
         }
         return res.ok;
+    };
+
+    private storeRoom = (roomId: string) => {
+        return (room: any) => {
+            const found = this.storage.rooms.find((r) => r.roomId === roomId);
+            if (!found) {
+                const nameEvent = room.state.events.find(
+                    (evt: any) => evt.type === "m.room.name",
+                );
+                const memberEvent = room.state.events.filter(
+                    (evt: any) => evt.type === "m.room.member",
+                );
+                const members = memberEvent.map((evt: any) => {
+                    return {...evt.content};
+                });
+                this.storage.rooms = [
+                    ...this.storage.rooms,
+                    {
+                        roomId,
+                        name: nameEvent?.content?.name,
+                        timeline: room.timeline,
+                        state: room.state,
+                        members,
+                    },
+                ];
+            }
+        };
     };
 
     private save = () => {
