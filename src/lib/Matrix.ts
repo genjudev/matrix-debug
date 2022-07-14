@@ -13,17 +13,18 @@ type TMatrixAccessInfo = {
 type TServiceProps = {
     store?: {accessInfo: TMatrixAccessInfo};
 };
-type TRoom = {
+export type TRoom = {
     name: string;
     state: any;
     timeline: any;
     roomId: string;
     members: any;
 };
-type TUser = {
+export type TUser = {
     displayname: string;
     sender: string;
     avatar_url: string;
+    presence: string;
 };
 
 type TStorage = {
@@ -119,25 +120,26 @@ export default class Matrix extends DelegatedEventTarget {
                 // prototype of getting user info
                 if (this.storage.syncs.length > 0) {
                     this.storage.syncs.forEach((sync: any) => {
+                        // rooms
                         Object.keys(sync.rooms.join).forEach((k) => {
-                            this.storeRoom(k)(sync.rooms.join[k]);
                             sync.rooms.join[k].state.events.forEach(
                                 (evt: any) => {
-                                    if (evt.type === "m.room.member") {
-                                        const found = this.storage.user.find(
-                                            (u) =>
-                                                u.displayname ===
-                                                evt.content.displayname,
-                                        );
-                                        if (!found) {
-                                            this.storage.user = [
-                                                ...this.storage.user,
-                                                {...evt.content},
-                                            ];
-                                        }
-                                    }
+                                    this.storeEvent(k, sync.rooms.join[k], evt);
+                                    this.storeRoom(k)(sync.rooms.join[k]);
                                 },
                             );
+                        });
+
+                        // presence
+                        sync.presence.events.forEach((presenceEvent: any) => {
+                            const {sender, content} = presenceEvent;
+                            this.storage.user.forEach((u, index) => {
+                                let presence = "offline";
+                                if (u.sender === sender) {
+                                    presence = content.presence;
+                                }
+                                this.storage.user[index].presence = presence;
+                            });
                         });
                     });
                 }
@@ -165,6 +167,24 @@ export default class Matrix extends DelegatedEventTarget {
         return res.ok;
     };
 
+    private storeEvent = (id: string, room: any, evt: any) => {
+        switch (evt.type) {
+            case "m.room.member":
+                this.storeUser(evt);
+                break;
+        }
+    };
+    private storeUser = (evt: any) => {
+        const found = this.storage.user.find(
+            (u) => u.displayname === evt.content.displayname,
+        );
+        if (!found) {
+            this.storage.user = [
+                ...this.storage.user,
+                {...evt.content, ...evt},
+            ];
+        }
+    };
     private storeRoom = (roomId: string) => {
         return (room: any) => {
             const found = this.storage.rooms.find((r) => r.roomId === roomId);

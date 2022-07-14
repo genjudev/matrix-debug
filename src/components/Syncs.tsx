@@ -9,7 +9,7 @@ const Syncs: React.FC = () => {
             {syncs.length > 0 && (
                 <ul>
                     {syncs.map((sync: any, index: number) => {
-                        return <SyncsItem key={index} item={sync} />;
+                        return <SyncsItem key={"syncs_" + index} item={sync} />;
                     })}
                 </ul>
             )}

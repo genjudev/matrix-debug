@@ -6,10 +6,14 @@ import ServerSideRoomKeys from "./components/ServerSideRoomKeys";
 import Syncs from "./components/Syncs";
 import User from "./components/User";
 import {mx} from "./services/MatrixService";
+import {TUser, TRoom} from "./lib/Matrix";
+import _ from "lodash";
 
 function App() {
     const [nav, setNav] = React.useState(0);
     const [syncs, setSyncs] = React.useState([]);
+    const [rooms, setRooms] = React.useState<TRoom[]>([]);
+    const [users, setUsers] = React.useState<TUser[]>([]);
 
     React.useEffect(() => {
         if (!mx.getAccessInfo()) {
@@ -32,6 +36,8 @@ function App() {
     };
     const loadData = () => {
         setSyncs(mx.getSyncs());
+        setRooms(_.cloneDeep(mx.getRooms()));
+        setUsers(_.cloneDeep(mx.getUsers()));
     };
     return (
         <div>
@@ -66,8 +72,8 @@ function App() {
                     </div>
                     <br />
                     {nav === 0 && <Syncs />}
-                    {nav === 1 && <Rooms />}
-                    {nav === 2 && <User />}
+                    {nav === 1 && <Rooms rooms={rooms} />}
+                    {nav === 2 && <User users={users} />}
                     {nav === 3 && <ServerSideRoomKeys />}
                 </>
             ) : (

@@ -1,8 +1,7 @@
 import * as React from "react";
-import {mx} from "../services/MatrixService";
+import {TRoom} from "../lib/Matrix";
 import RoomsItem from "./RoomsItem";
-const Rooms: React.FC = () => {
-    const rooms = mx.getRooms();
+const Rooms: React.FC<{rooms: TRoom[]}> = ({rooms}) => {
     return (
         <>
             <h2>Rooms</h2>
@@ -10,7 +9,7 @@ const Rooms: React.FC = () => {
             {rooms.length > 0 && (
                 <ul>
                     {rooms.map((r, index) => (
-                        <RoomsItem item={r} />
+                        <RoomsItem key={"rooms_" + index} item={r} />
                     ))}
                 </ul>
             )}
