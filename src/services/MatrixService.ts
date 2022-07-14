@@ -102,7 +102,7 @@ class MatrixService {
                                         const found = this.storage.user.find(
                                             (u) =>
                                                 u.displayname ===
-                                                evt.content.displayName,
+                                                evt.content.displayname,
                                         );
                                         if (!found) {
                                             this.storage.user = [
@@ -120,7 +120,6 @@ class MatrixService {
                     cb(jsonRes);
                 }
                 this.syncActive = false;
-                console.log(this.storage.user);
 
                 return this.sync({cb});
             }
@@ -130,6 +129,18 @@ class MatrixService {
 
             return false;
         }
+    };
+
+    getBackup = async () => {
+        const res = await fetch(
+            BASE_URL +
+                "room_keys/version?access_token=" +
+                this.accessInfo?.access_token,
+        );
+        if (res.ok) {
+            return await res.json();
+        }
+        return res.ok;
     };
 
     private save = () => {

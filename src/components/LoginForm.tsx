@@ -9,6 +9,7 @@ const LoginForm: React.FC = () => {
         await mx.login(username, password);
         setUsername("");
         setPassword("");
+        window.location.reload();
     };
 
     return (
