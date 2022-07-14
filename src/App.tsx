@@ -11,14 +11,27 @@ function App() {
     const [syncs, setSyncs] = React.useState([]);
 
     React.useEffect(() => {
-        if (mx.getAccessInfo()) {
-            mx.sync({
-                cb: () => {
-                    setSyncs(mx.getSyncs());
-                },
-            });
+        if (!mx.getAccessInfo()) {
+            mx.addEventListener("LOGIN_SUCCESS", prepareListener);
+        } else {
+            prepareListener();
+            mx.sync();
         }
+        return () => {
+            removeListener();
+        };
     }, [nav]);
+
+    const prepareListener = () => {
+        mx.addEventListener("SYNC_UPDATE", loadData);
+    };
+    const removeListener = () => {
+        mx.removeEventListener("LOGIN_SUCCESS", prepareListener);
+        mx.removeEventListener("SYNC_UPDATE", loadData);
+    };
+    const loadData = () => {
+        setSyncs(mx.getSyncs());
+    };
     return (
         <div>
             {mx.getAccessInfo() === null ? (
