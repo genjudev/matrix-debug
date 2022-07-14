@@ -178,9 +178,7 @@ export default class Matrix extends DelegatedEventTarget {
         }
     };
     private storeUser = (evt: any) => {
-        const found = this.storage.user.find(
-            (u) => u.displayname === evt.content.displayname,
-        );
+        const found = this.storage.user.find((u) => u.sender === evt.sender);
         if (!found) {
             this.storage.user = [
                 ...this.storage.user,
