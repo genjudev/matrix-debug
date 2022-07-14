@@ -91,11 +91,11 @@ export default class Matrix extends DelegatedEventTarget {
                           .next_batch
                     : null;
 
-            const res = await fetch(
+            const res = await this.authRequest(
                 new URL(
-                    `sync?access_token=${
-                        this.accessInfo.access_token
-                    }&timeout=30000&${lastBatch ? "&since=" + lastBatch : ""}`,
+                    `sync?timeout=30000&${
+                        lastBatch ? "&since=" + lastBatch : ""
+                    }`,
                     this.accessInfo.url,
                 ),
             );
@@ -146,12 +146,8 @@ export default class Matrix extends DelegatedEventTarget {
     getBackup = async () => {
         if (!this.accessInfo) return;
 
-        const res = await fetch(
-            new URL(
-                "room_keys/version?access_token=" +
-                    this.accessInfo?.access_token,
-                this.accessInfo.url,
-            ),
+        const res = await this.authRequest(
+            new URL("room_keys/version", this.accessInfo.url),
         );
         if (res.ok) {
             return await res.json();
@@ -166,5 +162,18 @@ export default class Matrix extends DelegatedEventTarget {
                 accessInfo: this.accessInfo,
             }),
         );
+    };
+
+    private authRequest = async (url: string | URL, options?: RequestInit) => {
+        if (!this.accessInfo?.access_token) {
+            throw new Error("REQUEST_NO_AUTH");
+        }
+        const requestUrl = new URL(url);
+        requestUrl.searchParams.append(
+            "access_token",
+            this.accessInfo?.access_token,
+        );
+        const res = await fetch(requestUrl, options);
+        return res;
     };
 }
