@@ -25,6 +25,7 @@ function App() {
         return () => {
             removeListener();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nav]);
 
     const prepareListener = () => {
@@ -45,39 +46,58 @@ function App() {
                 <LoginForm />
             ) : syncs.length > 0 ? (
                 <>
-                    {/* to lazy for nav ...*/}
                     <div
                         style={{
                             display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
+                            justifyContent: "center",
+                            alignItems: "center",
                         }}
                     >
-                        <div>
-                            <button onClick={() => setNav(0)}>Syncs</button>
-                            <button onClick={() => setNav(1)}>Rooms</button>
-                            <button onClick={() => setNav(2)}>User</button>
-                            <button onClick={() => setNav(3)}>Backup</button>
-                        </div>
-                        <div>
-                            <button
-                                onClick={() => {
-                                    localStorage.clear();
-                                    window.location.reload();
-                                }}
-                            >
-                                Logout
-                            </button>
-                        </div>
+                        <a href="https://github.com/larsonnn/matrix-debug">
+                            <img
+                                src="/GitHub-Mark-64px.png"
+                                alt="GitHub Logo"
+                            />
+                        </a>
                     </div>
-                    <br />
-                    {nav === 0 && <Syncs />}
-                    {nav === 1 && <Rooms rooms={rooms} />}
-                    {nav === 2 && <User users={users} />}
-                    {nav === 3 && <ServerSideRoomKeys />}
+                    <div>
+                        {/* to lazy for nav ...*/}
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                            }}
+                        >
+                            <div>
+                                <button onClick={() => setNav(0)}>Syncs</button>
+                                <button onClick={() => setNav(1)}>Rooms</button>
+                                <button onClick={() => setNav(2)}>User</button>
+                                <button onClick={() => setNav(3)}>
+                                    Backup
+                                </button>
+                            </div>
+                            <div>
+                                <button
+                                    onClick={() => {
+                                        localStorage.clear();
+                                        window.location.reload();
+                                    }}
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                        <br />
+                        {nav === 0 && <Syncs />}
+                        {nav === 1 && <Rooms rooms={rooms} />}
+                        {nav === 2 && <User users={users} />}
+                        {nav === 3 && <ServerSideRoomKeys />}
+                    </div>
                 </>
             ) : (
-                <h1>logged in</h1>
+                <h1>Wait for sync...</h1>
             )}
         </div>
     );
