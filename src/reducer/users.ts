@@ -10,7 +10,7 @@ const initialState: UserState = {
     list: [],
 };
 
-export const roomsSlice = createSlice({
+export const usersSlice = createSlice({
     name: "users",
     initialState,
     reducers: {
@@ -35,8 +35,8 @@ export const roomsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {update} = roomsSlice.actions;
+export const {update} = usersSlice.actions;
 
 export const selectUsers = (state: RootState) => state.users.list;
 
-export default roomsSlice.reducer;
+export default usersSlice.reducer;

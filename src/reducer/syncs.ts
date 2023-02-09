@@ -9,7 +9,7 @@ const initialState: UserState = {
     list: [],
 };
 
-export const roomsSlice = createSlice({
+export const syncsSlice = createSlice({
     name: "syncs",
     initialState,
     reducers: {
@@ -20,8 +20,8 @@ export const roomsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {update} = roomsSlice.actions;
+export const {update} = syncsSlice.actions;
 
 export const selectSyncs = (state: RootState) => state.syncs.list;
 
-export default roomsSlice.reducer;
+export default syncsSlice.reducer;
