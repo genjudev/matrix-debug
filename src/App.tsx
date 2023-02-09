@@ -5,15 +5,16 @@ import Rooms from "./components/Rooms";
 import ServerSideRoomKeys from "./components/ServerSideRoomKeys";
 import Syncs from "./components/Syncs";
 import User from "./components/User";
-import {mx} from "./services/MatrixService";
-import {TUser, TRoom} from "./lib/Matrix";
-import _ from "lodash";
+import { useAppDispatch } from "./hooks";
+import { update as updateRooms } from "./reducer/rooms";
+import { update as updateSyncs } from "./reducer/syncs";
+import { update as updateUsers } from "./reducer/users";
+import { mx } from "./services/MatrixService";
 
 function App() {
+    const dispatch = useAppDispatch();
+
     const [nav, setNav] = React.useState(0);
-    const [syncs, setSyncs] = React.useState([]);
-    const [rooms, setRooms] = React.useState<TRoom[]>([]);
-    const [users, setUsers] = React.useState<TUser[]>([]);
 
     React.useEffect(() => {
         if (!mx.getAccessInfo()) {
@@ -36,15 +37,15 @@ function App() {
         mx.removeEventListener("SYNC_UPDATE", loadData);
     };
     const loadData = () => {
-        setSyncs(mx.getSyncs());
-        setRooms(_.cloneDeep(mx.getRooms()));
-        setUsers(_.cloneDeep(mx.getUsers()));
+        dispatch(updateSyncs());
+        dispatch(updateRooms());
+        dispatch(updateUsers());
     };
     return (
         <div>
             {mx.getAccessInfo() === null ? (
                 <LoginForm />
-            ) : syncs.length > 0 ? (
+            ) :
                 <>
                     <div
                         style={{
@@ -91,14 +92,12 @@ function App() {
                         </div>
                         <br />
                         {nav === 0 && <Syncs />}
-                        {nav === 1 && <Rooms rooms={rooms} />}
-                        {nav === 2 && <User users={users} />}
+                        {nav === 1 && <Rooms />}
+                        {nav === 2 && <User />}
                         {nav === 3 && <ServerSideRoomKeys />}
                     </div>
                 </>
-            ) : (
-                <h1>Wait for sync...</h1>
-            )}
+            }
         </div>
     );
 }

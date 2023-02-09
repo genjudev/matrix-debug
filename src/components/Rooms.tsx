@@ -1,7 +1,12 @@
 import * as React from "react";
-import {TRoom} from "../lib/Matrix";
+import { useAppSelector } from "../hooks";
+import { TRoom } from "../lib/Matrix";
+import { selectRooms } from "../reducer/rooms";
 import RoomsItem from "./RoomsItem";
-const Rooms: React.FC<{rooms: TRoom[]}> = ({rooms}) => {
+
+const Rooms: React.FC = () => {
+    const rooms: TRoom[] = useAppSelector(selectRooms);
+
     return (
         <>
             <h2>Rooms</h2>

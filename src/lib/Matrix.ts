@@ -130,20 +130,24 @@ export default class Matrix extends DelegatedEventTarget {
                             );
                         });
 
-                        // presence
-                        sync.presence.events.forEach((presenceEvent: any) => {
-                            const {sender, content} = presenceEvent;
-                            this.storage.user.forEach((u, index) => {
-                                let presence = "offline";
-                                if (u.sender === sender) {
-                                    presence = content.presence;
-                                }
-                                this.storage.user[index].presence =
-                                    presence === "online"
-                                        ? presence
-                                        : u.presence || presence;
-                            });
-                        });
+                        if (sync && "presence" in sync) {
+                            // presence
+                            sync.presence.events.forEach(
+                                (presenceEvent: any) => {
+                                    const {sender, content} = presenceEvent;
+                                    this.storage.user.forEach((u, index) => {
+                                        let presence = "offline";
+                                        if (u.sender === sender) {
+                                            presence = content.presence;
+                                        }
+                                        this.storage.user[index].presence =
+                                            presence === "online"
+                                                ? presence
+                                                : u.presence || presence;
+                                    });
+                                },
+                            );
+                        }
                     });
                 }
 
@@ -153,8 +157,9 @@ export default class Matrix extends DelegatedEventTarget {
             }
         } catch (e) {
             console.error(e);
+            this.dispatchEvent(new Event("SYNC_UPDATE"));
             this.syncActive = false;
-            return false;
+            return this.sync();
         }
     };
 
